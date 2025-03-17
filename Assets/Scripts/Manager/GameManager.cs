@@ -1,4 +1,4 @@
-﻿using Singleton;
+﻿using Systems.Singleton;
 
 namespace Manager
 {

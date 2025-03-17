@@ -1,4 +1,4 @@
-﻿namespace Event_Bus
+﻿namespace Systems.Event_Bus
 {
 	public struct TestEvent : IEvent
 	{

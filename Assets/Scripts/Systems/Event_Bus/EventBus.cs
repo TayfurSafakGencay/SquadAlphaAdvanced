@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Event_Bus
+namespace Systems.Event_Bus
 {
 	public static class EventBus<T> where T : IEvent
 	{

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Event_Bus
+namespace Systems.Event_Bus
 {
 	public class EventBinding<T> : IEventBinding<T> where T : IEvent
 	{
