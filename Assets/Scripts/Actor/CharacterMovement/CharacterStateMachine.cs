@@ -1,4 +1,6 @@
-﻿namespace Actor.CharacterMovement
+﻿using Actor.CharacterMovement.States.Base;
+
+namespace Actor.CharacterMovement
 {
 	public class CharacterStateMachine
 	{

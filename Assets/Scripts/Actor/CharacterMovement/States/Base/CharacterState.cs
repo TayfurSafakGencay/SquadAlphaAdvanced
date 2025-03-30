@@ -1,4 +1,4 @@
-namespace Actor.CharacterMovement
+namespace Actor.CharacterMovement.States.Base
 {
     public abstract class CharacterState
     {
@@ -11,6 +11,9 @@ namespace Actor.CharacterMovement
         
         public abstract void Enter();
         public abstract void Exit();
+
         public abstract void Update();
+        
+        protected abstract void SetupInputActions();
     }
 }

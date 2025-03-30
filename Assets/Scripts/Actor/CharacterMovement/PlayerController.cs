@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using Actor.CharacterMovement.States;
 using Interfaces;
@@ -12,39 +13,24 @@ namespace Actor.CharacterMovement
         public Rigidbody Rigidbody { get; private set; }
         public float Speed { get; set; } = 5f;
 
-        private InputManager _inputManager;
-        private InputAction _jumpAction;
+        public InputManager InputManager { get; private set; }
 
         private void Awake()
         {
             _player = GetComponent<Player>();
             Rigidbody = GetComponent<Rigidbody>();
             StateMachine = new CharacterStateMachine();
-            _inputManager = new InputManager();
+            InputManager = new InputManager();
             
-            _inputManager.Player.Move.Enable();
+            StateMachine.ChangeState(new IdleState(this));
             
-            StateMachine.ChangeState(new MovingState(this));
+            InputBindings();
         }
 
-        private void OnEnable()
+        private void InputBindings()
         {
-            RegisterInputListeners();
-        }
-
-        private void OnDisable()
-        {
-            RemoveInputListeners();
-        }
-
-        private void RegisterInputListeners()
-        {
-            // _jumpAction.performed += OnJump;
-        }
-
-        private void RemoveInputListeners()
-        {
-            // _jumpAction.performed -= OnJump;
+            InputManager.Player.Attack.performed += _ => Firing(true);
+            InputManager.Player.Attack.canceled += _ => Firing(false);
         }
 
         private void Update()
@@ -54,18 +40,20 @@ namespace Actor.CharacterMovement
             RotateTowardsMouse();
         }
 
-        private void OnJump(InputAction.CallbackContext context)
+        #region Movement
+        
+        public bool IsMovingInput()
         {
-            // StateMachine.ChangeState(new JumpState(this));
+            Vector2 moveInput = InputManager.Player.Move.ReadValue<Vector2>();
+            return moveInput != Vector2.zero;
         }
         
         public void MoveCharacter()
         {
-            Vector2 input = _inputManager.Player.Move.ReadValue<Vector2>();
+            Vector2 input = InputManager.Player.Move.ReadValue<Vector2>();
             input = input.normalized;
             
             OnMoveCharacter(input);
-            print(input);
         }
 
         private void OnMoveCharacter(Vector2 input)
@@ -74,7 +62,11 @@ namespace Actor.CharacterMovement
             moveDirection.y = 0; 
             Rigidbody.linearVelocity = moveDirection.normalized * Speed;
         }
-        
+
+        #endregion
+
+        #region Rotation
+
         private void RotateTowardsMouse()
         {
             Vector3 mousePosition = GetMouseWorldPosition();
@@ -90,5 +82,63 @@ namespace Actor.CharacterMovement
             Ray ray = _player.PlayerCamera.Camera.ScreenPointToRay(Mouse.current.position.ReadValue());
             return Physics.Raycast(ray, out RaycastHit hitInfo) ? hitInfo.point : transform.position;
         }
+
+        #endregion
+
+        #region Fire
+
+        private void Firing(bool isFiring) 
+        {
+            if (isFiring)
+            {
+                _player.PlayerShooting.ActivateFire();
+            }
+            else
+            {
+                _player.PlayerShooting.DeactivateFire();
+            }
+        }
+
+        #endregion
+
+        #region Jump
+
+        private InputAction _jumpAction;
+
+
+        #endregion
+
+        #region Input
+
+        private readonly List<InputAction> _inputActions = new();
+        
+        public void NewInputs(params InputAction[] inputActions)
+        {
+            _inputActions.Clear();
+            
+            foreach (InputAction inputAction in inputActions)
+            {
+                _inputActions.Add(inputAction);
+            }
+            
+            InputSetter(_inputActions);
+        }
+
+        public void InputSetter(List<InputAction> inputActions)
+        {
+            foreach (InputAction inputAction in InputManager.Player.Get())
+            {
+                if (!inputActions.Contains(inputAction)) 
+                    inputAction.Disable();
+            }
+    
+            foreach (InputAction inputAction in inputActions)
+            {
+                if (!inputAction.enabled) 
+                    inputAction.Enable();
+            }
+        }
+
+        #endregion
     }
 }
