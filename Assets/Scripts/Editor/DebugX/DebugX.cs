@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Editor.DebugX
 {
-    [CreateAssetMenu(menuName = "ScriptableObjects/Debug X/Create Debug X Data", fileName = "DebugXData")]
+    [CreateAssetMenu(menuName = "Scriptable Objects/Debug X/Create Debug X Data", fileName = "DebugXData")]
     [Serializable]
     public class DebugX : ScriptableObject
     {

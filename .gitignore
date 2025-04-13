@@ -75,3 +75,13 @@ Assets/Packets/
 Assets/Plugins/Demigiant/
 Assets/TextMesh Pro/Fonts/LiberationSans.ttf
 Assets/TextMesh Pro/
+Assets/Prefabs/Guns/Try1/GunRifleTry1.prefab
+Assets/Prefabs/Guns/Try1.meta
+Assets/Prefabs/Guns/Try1/GunRifleTry1.prefab.meta
+Assets/Prefabs/Guns/Try1/Try1Bullet.prefab
+Assets/Prefabs/Guns/Try1/Try1Bullet.prefab.meta
+Assets/Prefabs/User Interface/DamageText.meta
+Assets/Prefabs/User Interface/DamageText/DamageText.prefab
+Assets/Prefabs/User Interface/DamageText/DamageText.prefab.meta
+Assets/Prefabs/User Interface/DamageText/Line.prefab
+Assets/Prefabs/User Interface/DamageText/Line.prefab.meta
