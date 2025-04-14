@@ -10,18 +10,34 @@ namespace Actor.CharacterMovement.States
 
 		public override void Enter()
 		{
+			Controller.StopMovement();
+			
 			SetupInputActions();
+
+			if (Controller.IsFiring)
+			{
+				Controller.Firing();
+			}
 		}
 		
 		public override void Exit()
 		{
+			
+
 		}
 				
 		public override void Update()
 		{
 			if (Controller.IsMovingInput())
 			{
-				Controller.StateMachine.ChangeState(new MovingState(Controller));
+				if (Controller.IsSprinting())
+				{
+					Controller.StateMachine.ChangeState(new SprintingState(Controller));
+				}
+				else
+				{
+					Controller.StateMachine.ChangeState(new MovingState(Controller));
+				}
 			}
 		}
 		
@@ -29,7 +45,7 @@ namespace Actor.CharacterMovement.States
 		{
 			InputManager.PlayerActions p = Controller.InputManager.Player;
 			
-			Controller.NewInputs(p.Move, p.Jump, p.Attack);
+			Controller.NewInputs(p.Move, p.Jump, p.Attack, p.Sprint);
 		}
 	}
 }

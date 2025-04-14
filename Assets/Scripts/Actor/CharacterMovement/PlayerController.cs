@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Actor.CharacterMovement.States;
+using Actor.CharacterMovement.Stats;
 using Interfaces;
 
 namespace Actor.CharacterMovement
@@ -11,10 +12,12 @@ namespace Actor.CharacterMovement
         private Player _player;
         public CharacterStateMachine StateMachine { get; private set; }
         public Rigidbody Rigidbody { get; private set; }
-        public float Speed { get; set; } = 5f;
-
         public InputManager InputManager { get; private set; }
 
+        public PlayerMovementStats MovementStats => _playerMovementStats;
+
+        [SerializeField] private PlayerMovementStats _playerMovementStats;
+        
         private void Awake()
         {
             _player = GetComponent<Player>();
@@ -29,18 +32,29 @@ namespace Actor.CharacterMovement
 
         private void InputBindings()
         {
-            InputManager.Player.Attack.performed += _ => Firing(true);
-            InputManager.Player.Attack.canceled += _ => Firing(false);
+            InputManager.Player.Attack.performed += Firing;
+            InputManager.Player.Attack.canceled += StopFiring;
+            
+            InputManager.Player.Jump.performed += _ => Jump();
         }
 
         private void Update()
         {
+            Debug.DrawRay(_groundCheck.position, Vector3.down * 0.2f, CheckIfGrounded() ? Color.green : Color.red);
+
             StateMachine.UpdateState();
             
             RotateTowardsMouse();
         }
 
         #region Movement
+
+        public bool IsSprinting()
+        {
+            InputManager.Player.Sprint.ReadValue<float>();
+            
+            return InputManager.Player.Sprint.ReadValue<float>() > 0;
+        }
         
         public bool IsMovingInput()
         {
@@ -48,19 +62,40 @@ namespace Actor.CharacterMovement
             return moveInput != Vector2.zero;
         }
         
-        public void MoveCharacter()
+        public void MoveCharacter(float speed)
         {
             Vector2 input = InputManager.Player.Move.ReadValue<Vector2>();
             input = input.normalized;
             
-            OnMoveCharacter(input);
+            OnMoveCharacter(input, speed);
         }
 
-        private void OnMoveCharacter(Vector2 input)
+        private void OnMoveCharacter(Vector2 input, float forwardSpeed)
         {
             Vector3 moveDirection = transform.right * input.x + transform.forward * input.y;
-            moveDirection.y = 0; 
-            Rigidbody.linearVelocity = moveDirection.normalized * Speed;
+            moveDirection.y = 0;
+
+            float speed = 0f;
+
+            if (input.y > 0) 
+            {
+                speed = forwardSpeed;
+            }
+            else if (input.y < 0)
+            {
+                speed = MovementStats.BackwardSpeed;
+            }
+            else if (input.x != 0)
+            {
+                speed = MovementStats.StrafeSpeed;
+            }
+
+            Rigidbody.linearVelocity = moveDirection.normalized * speed;
+        }
+        
+        public void StopMovement()
+        {
+            Rigidbody.linearVelocity = Vector3.zero;
         }
 
         #endregion
@@ -87,25 +122,42 @@ namespace Actor.CharacterMovement
 
         #region Fire
 
-        private void Firing(bool isFiring) 
+        public bool IsFiring { get; private set; }
+        public void Firing(InputAction.CallbackContext callbackContext = default)
         {
-            if (isFiring)
-            {
-                _player.PlayerShooting.ActivateFire();
-            }
-            else
-            {
-                _player.PlayerShooting.DeactivateFire();
-            }
+            IsFiring = true;
+            
+            _player.PlayerShooting.ActivateFire();
+        }
+        
+        public void StopFiring(InputAction.CallbackContext callbackContext = default)
+        {
+            IsFiring = false;
+            
+            _player.PlayerShooting.DeactivateFire();
         }
 
         #endregion
 
         #region Jump
 
-        private InputAction _jumpAction;
+        private void Jump()
+        {
+            if (!CheckIfGrounded()) return;
+            
+            StateMachine.ChangeState(new JumpState(this));
+        }
 
-
+        [Header("Ground Check")]
+        
+        [SerializeField] private LayerMask _groundedLayers;
+        
+        [SerializeField] private Transform _groundCheck;
+        public bool CheckIfGrounded()
+        {
+            return Physics.Raycast(_groundCheck.position, Vector3.down, 0.2f, _groundedLayers);
+        }
+        
         #endregion
 
         #region Input
