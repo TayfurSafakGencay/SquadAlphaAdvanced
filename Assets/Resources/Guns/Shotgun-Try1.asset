@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e772294daaa41f3a6f97eb61afee272, type: 3}
+  m_Name: Shotgun-Try1
+  m_EditorClassIdentifier: 
+  Name: Shotgun-Try1
+  Damage: 60
+  FireRate: 1
+  Range: 8
+  ImpactForce: 150
+  CriticalHitChance: 80
+  CriticalHitMultiplier: 1.75
+  Accuracy: 40
+  Spread: 30
+  BulletsPerShot: 4
+  BulletVelocity: 40
+  Piercing: 0
+  ArmorPenetration: 10
+  ArmorPenetrationPercentage: 0
+  FirstShotPreparationTime: 2
+  MaxAmmo: 6
+  ReloadTime: 6
+  _gunAttributes: []
